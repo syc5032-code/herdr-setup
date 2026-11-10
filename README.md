@@ -21,11 +21,11 @@
 
 ## 🚀 다른 컴퓨터에서 1분 만에 설치하는 법
 
-새 컴퓨터에서 **PowerShell**을 열고 아래 명령어를 순서대로 실행합니다:
+새 컴퓨터에서 **PowerShell**을 열고 아래 명령어를 실행합니다:
 
 ```powershell
-# 1. 이 저장소 다운로드 (본인 GitHub 주소로 변경)
-git clone https://github.com/내아이디/herdr-setup.git
+# 1. 설정 저장소 다운로드
+git clone https://github.com/syc5032-code/herdr-setup.git
 cd herdr-setup
 
 # 2. 원클릭 설치 스크립트 실행
