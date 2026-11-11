@@ -1,11 +1,11 @@
-onboarding = false
+﻿onboarding = false
 
 [theme]
 name = "catppuccin-latte"
 auto_switch = false
 
 [theme.custom]
-panel_bg = "reset"
+panel_bg = "#eff1f5"
 sidebar_bg = "#e6e9ef"
 active_row_bg = "#ccd0da"
 text = "#4c4f69"
@@ -15,13 +15,14 @@ new_cwd = "follow"
 
 [ui]
 mouse_capture = true
-sidebar_width = 26
+sidebar_width = 20
+sidebar_min_width = 16
 hide_tab_bar_when_single_tab = false
 tab_bar_position = "top"
 tab_bar_right_separator = " | "
 
 tab_bar_right = [
-  { type = "command", command = "type %USERPROFILE%\\.gemini\\antigravity-cli\\quota_cache.txt", interval_seconds = 5, timeout_seconds = 2 },
+  { type = "command", command = "node %USERPROFILE%\\.gemini\\antigravity-cli\\get_quota_summary.js", interval_seconds = 5, timeout_seconds = 2 },
   { type = "zoom" }
 ]
 
@@ -38,7 +39,7 @@ resume_agents_on_restore = true
 [experimental]
 switch_ascii_input_source_in_prefix = true
 
-# 빠른 실행 단축키
+# ??�?????�뻬 ??ν???
 [[keys.command]]
 key = "alt+a"
 type = "pane"
@@ -54,10 +55,11 @@ key = "alt+d"
 type = "pane"
 command = "codex"
 
-# Alt+q : 안티그래비티 5시간/주간 사용량 팝업 확인
+# Alt+q : ???�뼒?�밸�?믧뜮袁る�?5??�?��/?�뚯?��????????밸씜 ?類ㅼ�?
 [[keys.command]]
 key = "alt+q"
 type = "popup"
 command = "\"%LOCALAPPDATA%\\agy\\bin\\agy.exe\" -p /quota & pause"
 width = "80%"
 height = "50%"
+

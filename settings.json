@@ -1,29 +1,28 @@
 {
-  "agentMode": "auto",
-  "toolPermission": "auto",
-  "model": "Gemini 3.8 Flash (High)",
-  "permissions": {
-    "allow": [
-      "command(git *)",
-      "command(npm *)",
-      "command(node *)",
-      "command(npx *)",
-      "command(python *)",
-      "command(pip *)",
-      "command(Get-*)",
-      "command(Select-*)",
-      "command(Where-*)",
-      "command(dir *)",
-      "command(ls *)",
-      "command(cat *)",
-      "command(type *)",
-      "command(winget *)",
-      "command(cd *)"
-    ]
-  },
-  "statusLine": {
-    "type": "command",
-    "command": "%USERPROFILE%\\.gemini\\antigravity-cli\\statusline.cmd",
-    "enabled": true
-  }
+    "agentMode":  "auto",
+    "model":  "Gemini 3.8 Flash (High)",
+    "permissions":  {
+                        "allow":  [
+                                      "command(git *)",
+                                      "command(npm *)",
+                                      "command(node *)",
+                                      "command(npx *)",
+                                      "command(python *)",
+                                      "command(pip *)",
+                                      "command(Get-*)",
+                                      "command(Select-*)",
+                                      "command(Where-*)",
+                                      "command(dir *)",
+                                      "command(ls *)",
+                                      "command(cat *)",
+                                      "command(type *)",
+                                      "command(winget *)",
+                                      "command(cd *)"
+                                  ]
+                    },
+    "statusLine":  {
+                       "type":  "command",
+                       "command":  "%USERPROFILE%\\.gemini\\antigravity-cli\\statusline.cmd",
+                       "enabled":  true
+                   }
 }

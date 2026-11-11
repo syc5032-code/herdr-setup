@@ -62,6 +62,20 @@ process.stdin.on('end', () => {
         }
       } catch(e) {}
     }
+
+    // Auto-refresh quota cache in background if older than 2 minutes
+    try {
+      const stats = fs.statSync(cacheFile);
+      if (Date.now() - stats.mtimeMs > 120000) {
+        const updater = path.join(userProfile, '.gemini', 'antigravity-cli', 'get_quota_summary.js');
+        const child = require('child_process').spawn(process.execPath, [updater, '--update'], {
+          detached: true,
+          stdio: 'ignore',
+          windowsHide: true
+        });
+        child.unref();
+      }
+    } catch(e) {}
     
     // 4. Context window
     let ctxStr = '';
