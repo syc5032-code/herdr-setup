@@ -13,7 +13,7 @@
   * 윈도우 한글 IME 씹힘 방지 (`switch_ascii_input_source_in_prefix = true`)
   * 빠른 단축키 (`Alt + a` 자동 실행, `Alt + q` 쿼터 팝업)
 * **Antigravity CLI 최신 설치 및 훅 연동**:
-  * 윤자동 스타일 하단 상태줄 (`Gemini 3.8 Flash high · user [7d X% 5h Y%] · [ctx ...]`)
+  * 윤자동 스타일 하단 상태줄 (`Gemini 4 Hydrogen medium · user [7d X% 5h Y%] · [ctx ...]`)
   * 일상 명령어 자동 승인 모드 (`agentMode: auto`)
 * **터미널 단축키 (`a`, `herder`) 자동 등록**
 

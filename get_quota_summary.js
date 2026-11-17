@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-const { exec, spawn } = require('child_process');
+const { execFile, spawn, spawnSync } = require('child_process');
 
 const userProfile = process.env.USERPROFILE || 'C:\\Users\\' + (process.env.USERNAME || 'user');
 const localAppData = process.env.LOCALAPPDATA || path.join(userProfile, 'AppData', 'Local');
@@ -9,6 +9,25 @@ const configDir = path.join(userProfile, '.gemini', 'antigravity-cli');
 const cacheFile = path.join(configDir, 'quota_cache.txt');
 const dataFile = path.join(configDir, 'quota_data.json');
 const agyPath = path.join(localAppData, 'agy', 'bin', 'agy.exe');
+
+function readJsonSafe(filePath) {
+  try {
+    if (!fs.existsSync(filePath)) return null;
+    const raw = fs.readFileSync(filePath, 'utf8').replace(/^\uFEFF/, '');
+    return JSON.parse(raw);
+  } catch (e) {
+    return null;
+  }
+}
+
+function writeFileIfChanged(filePath, content) {
+  try {
+    if (fs.existsSync(filePath) && fs.readFileSync(filePath, 'utf8') === content) {
+      return;
+    }
+    fs.writeFileSync(filePath, content, 'utf8');
+  } catch (e) {}
+}
 
 function formatTimeRemaining(resetIso) {
   if (!resetIso) return '';
@@ -43,11 +62,11 @@ function buildSummaryText(fiveHour, fiveReset, weekly, weeklyReset) {
 
 // Background updater mode
 if (process.argv.includes('--update')) {
-  exec(`"${agyPath}" -p /quota`, { timeout: 45000 }, (err, stdout) => {
+  execFile(agyPath, ['-p', '/quota'], { timeout: 90000, windowsHide: true }, (err, stdout) => {
     if (!err && stdout) {
       let fiveHour = '', fiveReset = '';
       let weekly = '', weeklyReset = '';
-      const lines = stdout.split('\n');
+      const lines = stdout.split(/\r?\n/);
 
       // 1. Try Gemini Models first
       for (const line of lines) {
@@ -86,8 +105,10 @@ if (process.argv.includes('--update')) {
       }
 
       if (fiveHour || weekly) {
+        const now = Date.now();
         const payload = {
-          updatedAt: Date.now(),
+          updatedAt: now,
+          attemptedAt: now,
           fiveHour: fiveHour || '100%',
           fiveReset: fiveReset || '',
           weekly: weekly || '100%',
@@ -96,7 +117,7 @@ if (process.argv.includes('--update')) {
         try { fs.writeFileSync(dataFile, JSON.stringify(payload, null, 2), 'utf8'); } catch (e) {}
 
         const text = buildSummaryText(payload.fiveHour, payload.fiveReset, payload.weekly, payload.weeklyReset);
-        try { fs.writeFileSync(cacheFile, text, 'utf8'); } catch (e) {}
+        writeFileIfChanged(cacheFile, text);
       }
     }
     process.exit(0);
@@ -105,6 +126,22 @@ if (process.argv.includes('--update')) {
 }
 
 function triggerBackgroundUpdate() {
+  if (process.platform === 'win32') {
+    try {
+      const cmdLine = `"${process.execPath}" "${__filename}" --update`;
+      const psScript = [
+        '$s = New-CimInstance -ClassName Win32_ProcessStartup -Property @{ ShowWindow = [uint16]0 } -ClientOnly',
+        `Invoke-CimMethod -ClassName Win32_Process -MethodName Create -Arguments @{ CommandLine = '${cmdLine.replace(/'/g, "''")}'; ProcessStartupInformation = $s } | Out-Null`
+      ].join('; ');
+      const res = spawnSync('powershell.exe', ['-NoProfile', '-NonInteractive', '-WindowStyle', 'Hidden', '-Command', psScript], {
+        timeout: 4000,
+        stdio: 'ignore',
+        windowsHide: true
+      });
+      if (res.status === 0) return;
+    } catch (e) {}
+  }
+
   try {
     const child = spawn(process.execPath, [__filename, '--update'], {
       detached: true,
@@ -115,31 +152,31 @@ function triggerBackgroundUpdate() {
   } catch (e) {}
 }
 
-let data = null;
-try {
-  if (fs.existsSync(dataFile)) {
-    data = JSON.parse(fs.readFileSync(dataFile, 'utf8'));
-  }
-} catch (e) {}
+const data = readJsonSafe(dataFile);
+const now = Date.now();
 
 if (data && data.fiveHour) {
-  // If cache is older than 2 minutes, trigger background update
-  if (Date.now() - (data.updatedAt || 0) > 120000) {
-    data.updatedAt = Date.now(); // throttle spawns
+  const lastTry = Math.max(data.updatedAt || 0, data.attemptedAt || 0);
+  const fiveResetMs = data.fiveReset ? new Date(data.fiveReset).getTime() : 0;
+  const resetExpired = fiveResetMs > 0 && !isNaN(fiveResetMs) && fiveResetMs <= now;
+  const interval = resetExpired ? 30000 : 120000;
+
+  if (now - lastTry > interval) {
+    data.attemptedAt = now; // throttle spawns without overwriting updatedAt
     try { fs.writeFileSync(dataFile, JSON.stringify(data, null, 2), 'utf8'); } catch (e) {}
     triggerBackgroundUpdate();
   }
 
   // Calculate live countdown
   const text = buildSummaryText(data.fiveHour, data.fiveReset, data.weekly, data.weeklyReset);
-  try { fs.writeFileSync(cacheFile, text, 'utf8'); } catch (e) {}
+  writeFileIfChanged(cacheFile, text);
   process.stdout.write(text);
 } else {
   // Initial fallback
   let fallback = '[5h: 100% | Wk: 100%]';
   try {
     if (fs.existsSync(cacheFile)) {
-      fallback = fs.readFileSync(cacheFile, 'utf8').trim();
+      fallback = fs.readFileSync(cacheFile, 'utf8').replace(/^\uFEFF/, '').trim();
     }
   } catch (e) {}
   triggerBackgroundUpdate();

@@ -1,10 +1,11 @@
-﻿onboarding = false
+onboarding = false
 
 [theme]
 name = "catppuccin-latte"
 auto_switch = false
 
 [theme.custom]
+accent = "#eab308"
 panel_bg = "#eff1f5"
 sidebar_bg = "#e6e9ef"
 active_row_bg = "#ccd0da"
@@ -14,6 +15,7 @@ text = "#4c4f69"
 new_cwd = "follow"
 
 [ui]
+accent = "#eab308"
 mouse_capture = true
 sidebar_width = 20
 sidebar_min_width = 16
@@ -22,7 +24,7 @@ tab_bar_position = "top"
 tab_bar_right_separator = " | "
 
 tab_bar_right = [
-  { type = "command", command = "node %USERPROFILE%\\.gemini\\antigravity-cli\\get_quota_summary.js", interval_seconds = 5, timeout_seconds = 2 },
+  { type = "command", command = "node %USERPROFILE%\\.gemini\\antigravity-cli\\get_quota_summary.js", interval_seconds = 5, timeout_seconds = 5 },
   { type = "zoom" }
 ]
 
@@ -43,7 +45,7 @@ switch_ascii_input_source_in_prefix = true
 [[keys.command]]
 key = "alt+a"
 type = "pane"
-command = "agy --mode auto"
+command = "agy --mode auto --model gemini-4-hydrogen-medium"
 
 [[keys.command]]
 key = "alt+c"

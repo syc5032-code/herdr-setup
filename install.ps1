@@ -55,7 +55,7 @@ if ($herdrExe) {
 Write-Host "`n[6/7] 터미널 단축 명령어(a, herder) 등록 중..." -ForegroundColor Yellow
 $windowsApps = Join-Path $env:LOCALAPPDATA "Microsoft\WindowsApps"
 if (Test-Path $windowsApps) {
-    Set-Content -Path (Join-Path $windowsApps "a.cmd") -Value "@echo off`n`"%LOCALAPPDATA%\agy\bin\agy.exe`" --mode auto %*" -Force
+    Set-Content -Path (Join-Path $windowsApps "a.cmd") -Value "@echo off`n`"%LOCALAPPDATA%\agy\bin\agy.exe`" --mode auto --model gemini-4-hydrogen-medium %*" -Force
     Set-Content -Path (Join-Path $windowsApps "herder.cmd") -Value "@echo off`nherdr %*" -Force
 }
 
@@ -65,7 +65,7 @@ try {
     if (-not (Test-Path $profileDir)) { New-Item -ItemType Directory -Path $profileDir -Force | Out-Null }
     $profileContent = @'
 function herder { herdr @args }
-function a { & "$env:LOCALAPPDATA\agy\bin\agy.exe" --mode auto @args }
+function a { & "$env:LOCALAPPDATA\agy\bin\agy.exe" --mode auto --model gemini-4-hydrogen-medium @args }
 function c { if (Get-Command claude -ErrorAction SilentlyContinue) { & claude @args } else { Write-Warning "Claude가 아직 설치되지 않았습니다." } }
 function d { if (Get-Command codex -ErrorAction SilentlyContinue) { & codex @args } else { Write-Warning "Codex가 아직 설치되지 않았습니다." } }
 '@
